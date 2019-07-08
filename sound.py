@@ -35,7 +35,13 @@ class SoundInterface():
 		if buffer is None:
 			buffer = self.buffer
 
-		return compress(self.stream.read(buffer))
+		while True:
+			try:
+				yield compress(self.stream.read(buffer))
+			except OSError as e:
+				#Does it works on other platforms (linux/osx)?
+				if e.errno == -9988:
+					return
 
 	def close(self):
 		self.stream.stop_stream()
@@ -57,7 +63,10 @@ if __name__ == '__main__':
 	mic = SoundInterface(input=True, input_device=2)
 	sound = SoundInterface(output=True)
 
-	for i in range(rate // chunk * record):
-		data = mic.read()
+	h = 0
+	for data in mic.read():
+		h += 1
 		sound.write(data)
+		if h > 200:
+			mic.close()
 
