@@ -1,4 +1,4 @@
-import await
+import asyncio
 import time
 import socket as sk
 
@@ -10,10 +10,10 @@ class Socket():
 		self.buffer = buffer
 		self.timeout = timeout
 
-	def send(self, data, target):
+	async def send(self, data, target):
 		self.s.sendto(data, target)
 
-	def recv(self, buffer=None):
+	async def recv(self, buffer=None):
 		if buffer is None:
 			buffer = self.buffer
 
@@ -22,7 +22,7 @@ class Socket():
 	def close(self):
 		self.s.close()
 
-	def ping(self, target):
+	async def ping(self, target):
 		start = time.time()
 		self.s.sendto(b'ping', target)
 
@@ -35,4 +35,5 @@ class Socket():
 		return rrt
 
 	def await_ping_ack(self, target):
+		pass
 		

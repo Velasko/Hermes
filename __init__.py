@@ -1,5 +1,5 @@
 from .sound import SoundInterface
-from .server import Socket
+from .connection import Socket
 
 class default_settings()
 	def __init__(self):
