@@ -1,26 +1,24 @@
 import pyaudio
+from zlib import compress, decompress
 
 class SoundInterface():
-	def __init__(self,
-		input_device: int=0,
-		output_device: int=0,
-		buffer: int=1024,
-		width: int=2,
-		channels: int=2,
-		rate: int=44100,
-		):
+	p = pyaudio.PyAudio()
 
-		self.p = pyaudio.PyAudio()
+	def __init__(self, input=False, output=False, width=2, channels=2, rate=44100, buffer=1024, input_device=None, output_device=None):
 
-		self.stream = self.p.open(format=p.get_format_from_width(width),
-                channels=channels,
-                rate=rate,
-                input=True,
-                output=True,
-                frames_per_buffer=buffer,
-                input_device_index=2)
+		self.stream = SoundInterface.p.open(
+			format=SoundInterface.p.get_format_from_width(width),
+			channels=channels,
+			rate=rate,
+			input=input,
+			output=output,
+			frames_per_buffer=buffer,
+			input_device_index=input_device,
+			output_device_index=output_device,
+		)
 
 		self.buffer = buffer
+
 
 	def write(self, data, buffer=None):
 		'''Sends audio to output'''
@@ -28,7 +26,7 @@ class SoundInterface():
 		if buffer is None:
 			buffer = self.buffer
 
-		data = self.decompress(data)
+		data = decompress(data)
 
 		self.stream.write(data, buffer)
 
@@ -37,20 +35,29 @@ class SoundInterface():
 		if buffer is None:
 			buffer = self.buffer
 
-		return self.stream.read(buffer)
+		return compress(self.stream.read(buffer))
 
 	def close(self):
 		self.stream.stop_stream()
 		self.stream.close()
 
-		self.p.terminate()
+	def terminate(self):
+		SoundInterface.p.terminate()
 
-	def decompress(data):
-		'''Inverse of compress.
-		Decompresses the audio which were compressed to spare bandwidth'''
-		return data
 
-	def compress(data):
-		'''Inverse of decompress.
-		Compresses the audio to spare bandwidth'''
-		return data
+if __name__ == '__main__':
+
+	chunk = 1024
+	rate = 44100
+	record = 5
+
+	# for e in range(SoundInterface.p.get_device_count()):
+	# 	print(SoundInterface.p.get_device_info_by_index(e))
+
+	mic = SoundInterface(input=True, input_device=2)
+	sound = SoundInterface(output=True)
+
+	for i in range(rate // chunk * record):
+		data = mic.read()
+		sound.write(data)
+
