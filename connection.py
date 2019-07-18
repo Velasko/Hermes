@@ -17,7 +17,7 @@ class Socket():
 		if buffer is None:
 			buffer = self.buffer
 
-		return self.s.recvfrom(buffer)
+		yield self.s.recvfrom(buffer)
 
 	def close(self):
 		self.s.close()

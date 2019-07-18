@@ -1,4 +1,6 @@
+import asyncio
 import pyaudio
+
 from zlib import compress, decompress
 
 class SoundInterface():
@@ -30,6 +32,7 @@ class SoundInterface():
 
 		self.stream.write(data, buffer)
 
+	@asyncio.coroutine
 	def read(self, buffer=None):
 		'''Returns what was listened on microphone'''
 		if buffer is None:
@@ -50,9 +53,7 @@ class SoundInterface():
 	def terminate(self):
 		SoundInterface.p.terminate()
 
-
-if __name__ == '__main__':
-
+async def main():
 	chunk = 1024
 	rate = 44100
 	record = 5
@@ -60,7 +61,7 @@ if __name__ == '__main__':
 	# for e in range(SoundInterface.p.get_device_count()):
 	# 	print(SoundInterface.p.get_device_info_by_index(e))
 
-	mic = SoundInterface(input=True, input_device=2)
+	mic = SoundInterface(input=True, input_device=0)
 	sound = SoundInterface(output=True)
 
 	h = 0
@@ -69,4 +70,8 @@ if __name__ == '__main__':
 		sound.write(data)
 		if h > 200:
 			mic.close()
+
+if __name__ == '__main__':
+	loop = asyncio.get_event_loop()
+	loop.run_until_complete(main())
 
